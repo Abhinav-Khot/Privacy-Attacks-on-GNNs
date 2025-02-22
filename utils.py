@@ -489,8 +489,8 @@ def get_train_val_test_gcn(labels, seed=None):
     for i in range(nclass):
         labels_i = idx[labels==i]
         labels_i = np.random.permutation(labels_i)
-        idx_train = np.hstack((idx_train, labels_i[: 20])).astype(np.int)
-        idx_unlabeled = np.hstack((idx_unlabeled, labels_i[20: ])).astype(np.int)
+        idx_train = np.hstack((idx_train, labels_i[: 20])).astype(np.int32)
+        idx_unlabeled = np.hstack((idx_unlabeled, labels_i[20: ])).astype(np.int32)
 
     idx_unlabeled = np.random.permutation(idx_unlabeled)
     idx_val = idx_unlabeled[: 500]
@@ -517,9 +517,9 @@ def get_splits_each_class(labels, train_size):
     for i in range(nclass):
         labels_i = idx[labels==i]
         labels_i = np.random.permutation(labels_i)
-        idx_train = np.hstack((idx_train, labels_i[: train_size])).astype(np.int)
-        idx_val = np.hstack((idx_val, labels_i[train_size: 2*train_size])).astype(np.int)
-        idx_test = np.hstack((idx_test, labels_i[2*train_size: ])).astype(np.int)
+        idx_train = np.hstack((idx_train, labels_i[: train_size])).astype(np.int32)
+        idx_val = np.hstack((idx_val, labels_i[train_size: 2*train_size])).astype(np.int32)
+        idx_test = np.hstack((idx_test, labels_i[2*train_size: ])).astype(np.int32)
 
     return np.random.permutation(idx_train), np.random.permutation(idx_val), \
            np.random.permutation(idx_test)
