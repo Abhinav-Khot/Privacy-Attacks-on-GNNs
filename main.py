@@ -3,6 +3,7 @@ import numpy as np
 import torch.nn.functional as F
 import torch.optim as optim
 from models.gcn import GCN, embedding_GCN
+from models.DPAR import DPAR
 from topology_attack import PGDAttack
 from utils import *
 from dataset import Dataset
@@ -11,6 +12,7 @@ from sklearn.metrics import roc_curve, auc, average_precision_score
 import scipy.io as sio
 import random
 import os
+import pickle
 
 def test(adj, features, labels, victim_model):
     adj, features, labels = to_tensor(adj, features, labels, device=device)
@@ -106,11 +108,13 @@ torch.manual_seed(args.seed)
 if device != 'cpu':
     torch.cuda.manual_seed(args.seed)
 
-data = Dataset(root='', name=args.dataset, setting='GCN')
-adj, features, labels, init_adj = data.adj, data.features, data.labels, data.init_adj
+# data = Dataset(root='', name=args.dataset, setting='GCN')
+# adj, features, labels, init_adj = data.adj, data.features, data.labels, data.init_adj
 
-idx_train, idx_val, idx_test = data.idx_train, data.idx_val, data.idx_test
+# idx_train, idx_val, idx_test = data.idx_train, data.idx_val, data.idx_test
 #choose the target nodes
+
+
 idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
 num_edges = int(0.5 * args.density * adj.sum()/adj.shape[0]**2 * len(idx_attack)**2)
 
@@ -121,20 +125,25 @@ feature_adj = dot_product_decode(features)
 init_adj = torch.FloatTensor(init_adj.todense())
 # initial adj is set to zero matrix
 
+with open("model_params.pkl", "rb") as f:
+    loaded_params = pickle.load(f)
+
+victim_model = DPAR(loaded_params)
+
 # Setup Victim Model
 
-victim_model = GCN(nfeat=features.shape[1], nclass=labels.max().item() + 1, nhid=16,
-                   dropout=0.5, weight_decay=5e-4, device=device)
+# victim_model = GCN(nfeat=features.shape[1], nclass=labels.max().item() + 1, nhid=16,
+#                    dropout=0.5, weight_decay=5e-4, device=device)
 
-victim_model = victim_model.to(device)
-victim_model.fit(features, adj, labels, idx_train, idx_val)
+# victim_model = victim_model.to(device)
+# victim_model.fit(features, adj, labels, idx_train, idx_val)
 
-embedding = embedding_GCN(nfeat=features.shape[1], nhid=16, device=device)
-embedding.load_state_dict(transfer_state_dict(victim_model.state_dict(), embedding.state_dict()))
+# embedding = embedding_GCN(nfeat=features.shape[1], nhid=16, device=device)
+# embedding.load_state_dict(transfer_state_dict(victim_model.state_dict(), embedding.state_dict()))
 
 # Setup Attack Model
 
-model = PGDAttack(model=victim_model, embedding=embedding, nnodes=adj.shape[0], loss_type='CE', device=device)
+model = PGDAttack(model=victim_model, nnodes=adj.shape[0], loss_type='CE', device=device)
 
 model = model.to(device)
 

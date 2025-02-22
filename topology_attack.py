@@ -40,7 +40,7 @@ class PGDAttack(BaseAttack):
         ori_adj, ori_features, labels = utils.to_tensor(ori_adj, ori_features, labels, device=self.device)
 
         victim_model.eval()
-        self.embedding.eval()
+        # self.embedding.eval()
         loss_list = []
         for t in tqdm(range(epochs)):
             modified_adj = self.get_modified_adj(ori_adj)
@@ -75,9 +75,9 @@ class PGDAttack(BaseAttack):
         #print('--modify parameters--')
         #self.random_sample(ori_adj, ori_features, labels, idx_attack)
 
-        em = self.embedding(ori_features, adj_norm)
-        self.adj_changes.data = self.dot_product_decode(em)
-        self.modified_adj = self.get_modified_adj(ori_adj).detach()
+        # em = self.embedding(ori_features, adj_norm)
+        # self.adj_changes.data = self.dot_product_decode(em)
+        # self.modified_adj = self.get_modified_adj(ori_adj).detach()
 
         np.savetxt('loss.txt', loss_list)
 
