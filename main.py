@@ -13,19 +13,20 @@ import scipy.io as sio
 import random
 import os
 import pickle
+import scipy.sparse as sp
 
-def test(adj, features, labels, victim_model):
-    adj, features, labels = to_tensor(adj, features, labels, device=device)
+# def test(adj, features, labels, victim_model):
+#     adj, features, labels = to_tensor(adj, features, labels, device=device)
 
-    victim_model.eval()
-    adj_norm = normalize_adj_tensor(adj)
-    output = victim_model(features, adj_norm)
+#     victim_model.eval()
+#     adj_norm = normalize_adj_tensor(adj)
+#     output = victim_model(features, adj_norm)
 
-    loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-    acc_test = accuracy(output[idx_test], labels[idx_test])
-    print("Test set results:", "loss= {:.4f}".format(loss_test.item()), "accuracy= {:.4f}".format(acc_test.item()))
+#     loss_test = F.nll_loss(output[idx_test], labels[idx_test])
+#     acc_test = accuracy(output[idx_test], labels[idx_test])
+#     print("Test set results:", "loss= {:.4f}".format(loss_test.item()), "accuracy= {:.4f}".format(acc_test.item()))
 
-    return output.detach()
+    # return output.detach()
 
 def dot_product_decode(Z):
     Z = F.normalize(Z, p=2, dim=1)
@@ -114,12 +115,24 @@ if device != 'cpu':
 # idx_train, idx_val, idx_test = data.idx_train, data.idx_val, data.idx_test
 #choose the target nodes
 
+b = np.load('matricx.npz', allow_pickle = True)
+
+adj = torch.from_numpy(b["train_adj_matrix"])
+features = torch.from_numpy(b["train_attr_matrix"])
+labels = b["train_labels"]
+# print(type(adj))
+n = adj.shape[0]
+result = np.zeros((n, n))
+init_adj = sp.csr_matrix(result)
+
+print('Done')
 
 idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
 num_edges = int(0.5 * args.density * adj.sum()/adj.shape[0]**2 * len(idx_attack)**2)
 
 adj, features, labels = preprocess(adj, features, labels, preprocess_adj=False, onehot_feature=False)
 # to tensor
+print(len(labels))
 feature_adj = dot_product_decode(features)
 #preprocess_adj = preprocess_Adj(adj, feature_adj)
 init_adj = torch.FloatTensor(init_adj.todense())
@@ -151,9 +164,10 @@ model = model.to(device)
 def main():
     model.attack(features, init_adj, labels, idx_attack, num_edges, epochs=args.epochs)
     inference_adj = model.modified_adj.cpu()
-    print('=== testing GCN on original(clean) graph ===')
-    test(adj, features, labels, victim_model)
+    # print('=== testing GCN on original(clean) graph ===')
+    # test(adj, features, labels, victim_model)
     print('=== calculating link inference AUC&AP ===')
+    print(inference_adj.numpy().sum(axis = 1))
     metric(adj.numpy(), inference_adj.numpy(), idx_attack)
 
     #output = embedding(features.to(device), torch.zeros(adj.shape[0], adj.shape[0]).to(device))

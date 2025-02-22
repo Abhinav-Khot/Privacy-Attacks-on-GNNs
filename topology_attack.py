@@ -77,7 +77,7 @@ class PGDAttack(BaseAttack):
 
         # em = self.embedding(ori_features, adj_norm)
         # self.adj_changes.data = self.dot_product_decode(em)
-        # self.modified_adj = self.get_modified_adj(ori_adj).detach()
+        self.modified_adj = self.get_modified_adj(ori_adj).detach()
 
         np.savetxt('loss.txt', loss_list)
 

@@ -77,8 +77,8 @@ def preprocess(adj, features, labels, preprocess_adj=False, preprocess_feature=F
         if onehot_feature==True:
             features = torch.eye(features.shape[0])
         else:
-            features = torch.FloatTensor(np.array(features.todense()))
-        adj = torch.FloatTensor(adj.todense())
+            features = torch.FloatTensor(np.array(features))
+        adj = torch.FloatTensor(adj)
 
     return adj.to(device), features.to(device), labels.to(device)
 
