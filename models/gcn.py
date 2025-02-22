@@ -294,7 +294,7 @@ class GCN(nn.Module):
         optimizer = optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
 
         early_stopping = patience
-        best_loss_val = 100
+        best_loss_val = 100 
 
         for i in range(train_iters):
             self.train()
