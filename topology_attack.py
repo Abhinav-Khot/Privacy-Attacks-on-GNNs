@@ -55,7 +55,7 @@ class PGDAttack(BaseAttack):
                 p=2) * 0.001 + 1e-4 * loss_smooth_feat
 
             test_acc = utils.accuracy(output[idx_attack], labels[idx_attack])
-            print("loss= {:.4f}".format(loss.item()), "test_accuracy= {:.4f}".format(test_acc.item()))
+            # print("loss= {:.4f}".format(loss.item()), "test_accuracy= {:.4f}".format(test_acc.item()))
             loss_list.append(loss.item())
             adj_grad = -torch.autograd.grad(loss, self.adj_changes)[0]
 
@@ -70,7 +70,7 @@ class PGDAttack(BaseAttack):
 
             self.projection(num_edges)
             self.adj_changes.data.copy_(torch.clamp(self.adj_changes.data, min=0, max=1))
-            # ori_adj = modified_adj.detach() added by me
+            ori_adj = modified_adj.detach() #added by me
             #print(self.adj_changes.sum())
 
         #print('--modify parameters--')

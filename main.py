@@ -59,12 +59,19 @@ def transfer_state_dict(pretrained_dict, model_dict):
 def metric(ori_adj, inference_adj, idx):
     real_edge = ori_adj[idx, :][:, idx].reshape(-1)
     pred_edge = inference_adj[idx, :][:, idx].reshape(-1)
+    # real_edge = ori_adj.reshape(-1)
+    # pred_edge = inference_adj.reshape(-1)
     fpr, tpr, threshold = roc_curve(real_edge, pred_edge)
     index = np.where(real_edge == 0)[0]
     index_delete = np.random.choice(index, size=int(len(real_edge)-2*np.sum(real_edge)), replace=False)
     real_edge = np.delete(real_edge, index_delete)
     pred_edge = np.delete(pred_edge, index_delete)
     print("Inference attack AUC: %f AP: %f" % (auc(fpr, tpr), average_precision_score(real_edge, pred_edge)))
+    #get the  number of edges predicted correctly
+    correct_edges = np.sum(real_edge == pred_edge)
+    pcnt = correct_edges/np.sum(real_edge == 1)
+    print("Number of edges predicted correctly:", correct_edges, pcnt)
+
 
 def Auc(ori_adj, modified_adj, idx):
     real_edge = []
@@ -103,7 +110,8 @@ parser.add_argument('--nlabel', type=float, default=0.1)
 args = parser.parse_args()
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-#device = torch.device("cpu")
+print(device)
+device = torch.device("cpu") #comment this later after fixing tensor device issues
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if device != 'cpu':
@@ -127,7 +135,10 @@ init_adj = sp.csr_matrix(result)
 
 print('Done')
 
-idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
+# idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
+# print(f"Number of indices randomly selected: {len(idx_attack)}")
+idx_attack = np.array(range(adj.shape[0]))
+print(idx_attack)
 num_edges = int(0.5 * args.density * adj.sum()/adj.shape[0]**2 * len(idx_attack)**2)
 
 adj, features, labels = preprocess((adj), features, labels, preprocess_adj=False, onehot_feature=False)
@@ -138,9 +149,8 @@ feature_adj = dot_product_decode(features)
 init_adj = torch.FloatTensor(init_adj.todense())
 # initial adj is set to zero matrix
 
-with open("model_params.pkl", "rb") as f:
-    loaded_params = pickle.load(f)
-
+loaded_params = np.load('model_cora_ml_nosampling.npz', allow_pickle=True)
+print(loaded_params['W1:0'].shape)
 print(loaded_params['W2:0'].shape)
 victim_model = DPAR(loaded_params)
 
