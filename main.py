@@ -107,7 +107,8 @@ parser.add_argument('--dataset', type=str, default='cora',
 parser.add_argument('--density', type=float, default=1.0, help='Edge density estimation')
 parser.add_argument('--model', type=str, default='PGD', choices=['PGD', 'min-max'], help='model variant')
 parser.add_argument('--nlabel', type=float, default=0.1)
-
+parser.add_argument('--model_param_file', type=str, help='model parameter file')
+parser.add_argument('--train_adj_feature_file', type=str, help='train adj and feature file')
 args = parser.parse_args()
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -124,7 +125,7 @@ if device != 'cpu':
 # idx_train, idx_val, idx_test = data.idx_train, data.idx_val, data.idx_test
 #choose the target nodes
 
-b = np.load('matricx.npz', allow_pickle = True)
+b = np.load(args.train_adj_feature_file, allow_pickle = True)
 
 adj = torch.from_numpy(b["train_adj_matrix"])
 features = torch.from_numpy(b["train_attr_matrix"])
@@ -150,7 +151,7 @@ preprocess_adj = preprocess_Adj(adj, feature_adj)
 init_adj = torch.FloatTensor(init_adj.todense())
 # initial adj is set to zero matrix
 
-loaded_params = np.load('model_cora_ml_sampling50pct.npz', allow_pickle=True)
+loaded_params = np.load(args.model_param_file, allow_pickle=True)
 print(loaded_params['W1:0'].shape)
 print(loaded_params['W2:0'].shape)
 victim_model = DPAR(loaded_params)
