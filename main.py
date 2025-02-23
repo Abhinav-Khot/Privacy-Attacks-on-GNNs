@@ -130,7 +130,7 @@ print('Done')
 idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
 num_edges = int(0.5 * args.density * adj.sum()/adj.shape[0]**2 * len(idx_attack)**2)
 
-adj, features, labels = preprocess(adj, features, labels, preprocess_adj=False, onehot_feature=False)
+adj, features, labels = preprocess((adj), features, labels, preprocess_adj=False, onehot_feature=False)
 # to tensor
 print(len(labels))
 feature_adj = dot_product_decode(features)
@@ -141,6 +141,7 @@ init_adj = torch.FloatTensor(init_adj.todense())
 with open("model_params.pkl", "rb") as f:
     loaded_params = pickle.load(f)
 
+print(loaded_params['W2:0'].shape)
 victim_model = DPAR(loaded_params)
 
 # Setup Victim Model
@@ -167,7 +168,8 @@ def main():
     # print('=== testing GCN on original(clean) graph ===')
     # test(adj, features, labels, victim_model)
     print('=== calculating link inference AUC&AP ===')
-    print(inference_adj.numpy().sum(axis = 1))
+    print(inference_adj.numpy().sum(axis = 0))
+    print(inference_adj)
     metric(adj.numpy(), inference_adj.numpy(), idx_attack)
 
     #output = embedding(features.to(device), torch.zeros(adj.shape[0], adj.shape[0]).to(device))

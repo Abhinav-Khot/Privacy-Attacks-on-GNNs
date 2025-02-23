@@ -26,7 +26,7 @@ class DPAR(nn.Module):
         hidden_1 = self.ReLU(hidden_1)
 
         local_logits = torch.mm(hidden_1,torch.Tensor(self.W2))
-        logits = local_logits
+        logits = self.ReLU(local_logits) ##<=======
 
         alpha = 0.25
         deg_row = adj.sum(1).detach()
