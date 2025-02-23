@@ -64,21 +64,25 @@ class PGDAttack(BaseAttack):
                 if sample:
                     lr = 200 / np.sqrt(t + 1)
                 self.adj_changes.data.add_(lr * adj_grad)
+                # self.adj_changes.data = (lr * adj_grad)
+
 
             if t > 200:
                 self.adj_changes.data = self.SVD()
 
             self.projection(num_edges)
             self.adj_changes.data.copy_(torch.clamp(self.adj_changes.data, min=0, max=1))
-            ori_adj = modified_adj.detach() #added by me
+            ori_adj = modified_adj.detach() #added by mes
             #print(self.adj_changes.sum())
 
         #print('--modify parameters--')
-        self.random_sample(ori_adj, ori_features, labels, idx_attack)
-
+        # self.random_sample(ori_adj, ori_features, labels, idx_attack)
+        
+        
         # em = self.embedding(ori_features, adj_norm)
         # self.adj_changes.data = self.dot_product_decode(em)
         self.modified_adj = self.get_modified_adj(ori_adj).detach()
+        # self.modified_adj = self.normalize_and_binarize(self.modified_adj).detach()
         np.savetxt('loss.txt', loss_list)
 
         '''
@@ -250,3 +254,11 @@ class PGDAttack(BaseAttack):
         #A_pred = torch.matmul(Z, Z.t())
         tril_indices = torch.tril_indices(row=self.nnodes, col=self.nnodes, offset=-1)
         return A_pred[tril_indices[0], tril_indices[1]]
+
+
+    def normalize_and_binarize(self,A):
+
+        # Convert to binary matrix using probabilities
+        binary_matrix = torch.bernoulli(A)
+
+        return binary_matrix

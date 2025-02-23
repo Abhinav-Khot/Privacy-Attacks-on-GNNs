@@ -68,7 +68,8 @@ def metric(ori_adj, inference_adj, idx):
     pred_edge = np.delete(pred_edge, index_delete)
     print("Inference attack AUC: %f AP: %f" % (auc(fpr, tpr), average_precision_score(real_edge, pred_edge)))
     #get the  number of edges predicted correctly
-    correct_edges = np.sum(real_edge == pred_edge)
+    #correct_edges = number of edges in which both real and predicted edge values are 1
+    correct_edges = np.sum((real_edge == 1) & (pred_edge == 1))
     pcnt = correct_edges/np.sum(real_edge == 1)
     print("Number of edges predicted correctly:", correct_edges, pcnt)
 
@@ -135,9 +136,9 @@ init_adj = sp.csr_matrix(result)
 
 print('Done')
 
-# idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
-# print(f"Number of indices randomly selected: {len(idx_attack)}")
-idx_attack = np.array(range(adj.shape[0]))
+idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
+print(f"Number of indices randomly selected: {len(idx_attack)}")
+# idx_attack = np.array(range(adj.shape[0]))
 print(idx_attack)
 num_edges = int(0.5 * args.density * adj.sum()/adj.shape[0]**2 * len(idx_attack)**2)
 
@@ -145,11 +146,11 @@ adj, features, labels = preprocess((adj), features, labels, preprocess_adj=False
 # to tensor
 print(len(labels))
 feature_adj = dot_product_decode(features)
-#preprocess_adj = preprocess_Adj(adj, feature_adj)
+preprocess_adj = preprocess_Adj(adj, feature_adj)
 init_adj = torch.FloatTensor(init_adj.todense())
 # initial adj is set to zero matrix
 
-loaded_params = np.load('model_cora_ml_nosampling.npz', allow_pickle=True)
+loaded_params = np.load('model_cora_ml_sampling50pct.npz', allow_pickle=True)
 print(loaded_params['W1:0'].shape)
 print(loaded_params['W2:0'].shape)
 victim_model = DPAR(loaded_params)
@@ -179,7 +180,7 @@ def main():
     # test(adj, features, labels, victim_model)
     print('=== calculating link inference AUC&AP ===')
     print(inference_adj.numpy().sum(axis = 0))
-    print(inference_adj)
+    print(torch.max(inference_adj), torch.min(inference_adj))
     metric(adj.numpy(), inference_adj.numpy(), idx_attack)
 
     #output = embedding(features.to(device), torch.zeros(adj.shape[0], adj.shape[0]).to(device))
