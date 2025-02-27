@@ -72,7 +72,7 @@ class PGDAttack(BaseAttack):
 
             self.projection(num_edges)
             self.adj_changes.data.copy_(torch.clamp(self.adj_changes.data, min=0, max=1))
-            # ori_adj = modified_adj.detach() #added by mes
+            ori_adj = modified_adj.detach() #added by mes
             #print(self.adj_changes.sum())
 
         #print('--modify parameters--')

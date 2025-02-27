@@ -11,8 +11,8 @@ class DPAR(nn.Module):
         super().__init__()
         self.W1 = params['W1:0']
         self.W2 = params['W2:0']
-        self.nclass = 3
-        self.nfeat = 500
+        self.nclass = 7
+        self.nfeat = 2879
         self.hidden_sizes = 32
         self.ReLU = nn.ReLU()
 
