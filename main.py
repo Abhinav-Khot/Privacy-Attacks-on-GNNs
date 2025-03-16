@@ -68,10 +68,6 @@ def metric(ori_adj, inference_adj, idx):
     pred_edge = np.delete(pred_edge, index_delete)
     print("Inference attack AUC: %f AP: %f" % (auc(fpr, tpr), average_precision_score(real_edge, pred_edge)))
     #get the  number of edges predicted correctly
-    #correct_edges = number of edges in which both real and predicted edge values are 1
-    correct_edges = np.sum((real_edge == 1) & (pred_edge == 1))
-    pcnt = correct_edges/np.sum(real_edge == 1)
-    print("Number of edges predicted correctly:", correct_edges, pcnt)
 
 
 def Auc(ori_adj, modified_adj, idx):
@@ -113,7 +109,7 @@ args = parser.parse_args()
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
-device = torch.device("cpu") #comment this later after fixing tensor device issues
+# device = torch.device("cpu") #comment this later after fixing tensor device issues
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if device != 'cpu':
@@ -140,7 +136,7 @@ print('Done')
 idx_attack = np.array(random.sample(range(adj.shape[0]), int(adj.shape[0]*args.nlabel)))
 print(f"Number of indices randomly selected: {len(idx_attack)}")
 # idx_attack = np.array(range(adj.shape[0]))
-print(idx_attack)
+# print(idx_attack)
 num_edges = int(0.5 * args.density * adj.sum()/adj.shape[0]**2 * len(idx_attack)**2)
 
 adj, features, labels = preprocess((adj), features, labels, preprocess_adj=False, onehot_feature=False)
@@ -154,7 +150,8 @@ init_adj = torch.FloatTensor(init_adj.todense())
 loaded_params = np.load(args.model_param_file, allow_pickle=True)
 print(loaded_params['W1:0'].shape)
 print(loaded_params['W2:0'].shape)
-victim_model = DPAR(loaded_params)
+victim_model = DPAR(loaded_params, device=device)
+victim_model = victim_model.to(device)
 
 # Setup Victim Model
 

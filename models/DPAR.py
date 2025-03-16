@@ -7,32 +7,36 @@ import scipy as sp
 
 class DPAR(nn.Module):
 
-    def __init__ (self, params):
+    def __init__ (self, params, device):
         super().__init__()
-        self.W1 = params['W1:0']
-        self.W2 = params['W2:0']
+        self.W1 = torch.tensor(params['W1:0']).to(device)
+        self.W2 = torch.tensor(params['W2:0']).to(device)
         self.nclass = 3
         self.nfeat = 500
         self.hidden_sizes = 32
         self.ReLU = nn.ReLU()
+        self.device = device
 
     def forward(self,input,adj):
 
+        input = input.to(self.device)
+        adj = adj.to(self.device)
+
         if input.data.is_sparse:
-            hidden_1 = torch.spmm(input, torch.Tensor(self.W1))
+            hidden_1 = torch.spmm(input, (self.W1))
         else:
-            hidden_1 = torch.mm(input, torch.Tensor(self.W1))
+            hidden_1 = torch.mm(input, (self.W1))
 
         hidden_1 = self.ReLU(hidden_1)
 
-        local_logits = torch.mm(hidden_1,torch.Tensor(self.W2))
+        local_logits = torch.mm(hidden_1, (self.W2))
         # logits = self.ReLU(local_logits) ##<=======
         logits = local_logits
 
         alpha = 0.25
-        deg_row = adj.sum(1).detach()
+        deg_row = adj.sum(1)
 
-        deg_row_inv_alpha = (1 - alpha) / np.maximum(deg_row, 1e-12)
+        deg_row_inv_alpha = (1 - alpha) / torch.clamp(deg_row, min=1e-12)
         for i in range(2):
             logits = deg_row_inv_alpha[:, None] * (adj @ logits) + alpha * local_logits
 
