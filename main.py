@@ -146,8 +146,8 @@ num_edges = int(0.5 * args.density * adj.sum()/adj.shape[0]**2 * len(idx_attack)
 adj, features, labels = preprocess((adj), features, labels, preprocess_adj=False, onehot_feature=False)
 # to tensor
 print(len(labels))
-feature_adj = dot_product_decode(features)
-preprocess_adj = preprocess_Adj(adj, feature_adj)
+# feature_adj = dot_product_decode(features)
+# preprocess_adj = preprocess_Adj(adj, feature_adj)
 init_adj = torch.FloatTensor(init_adj.todense())
 # initial adj is set to zero matrix
 
