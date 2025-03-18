@@ -11,8 +11,8 @@ class DPAR(nn.Module):
         super().__init__()
         self.W1 = torch.tensor(params['W1:0']).to(device)
         self.W2 = torch.tensor(params['W2:0']).to(device)
-        self.nclass = 3
-        self.nfeat = 500
+        self.nclass = 7
+        self.nfeat = 2879
         self.hidden_sizes = 32
         self.ReLU = nn.ReLU()
         self.device = device
