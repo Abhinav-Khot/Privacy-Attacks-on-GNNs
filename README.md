@@ -1,21 +1,14 @@
-# GraphMI: Extracting Private Graph Data from Graph Neural Networks
-Official Pytorch implementation of IJCAI'21 paper "GraphMI: Extracting Private Graph Data from Graph Neural Networks" [[paper]](https://www.ijcai.org/proceedings/2021/516)[[arxiv]](https://arxiv.org/abs/2106.02820)
+## Testing Model Inversion Attacks agaisnt DPAR (Decoupled GNN with Differentially Private Approximate Personalized PageRank)
 
-<div align=center><img src="https://github.com/zaixizhang/GraphMI/blob/main/illustration.png" width="700"/></div>
+This repository outlines the testing of model inversion privacy attacks on the DPAR architecture under different settings. This attack tries to reconstruct the training graph based on model weights and a small amount of feature and label information.
 
-## Run the code  
-You can clone this repository and run the code
+The repository has 3 branches and each of them explore different experiments which try to deter the attack such as:
+- Effect of sampling the graph before training
+- Effect of dropping edges
+- Effect of rewiring edges
 
-```
-git clone https://github.com/zaixizhang/GraphMI.git
-cd GraphMI
-python main.py
-```
 
-## Cite
-
-If you find this repo to be useful, please cite our paper. Thank you.
-
+The base code for the privacy attack is adapted from the following paper:
 ```
 @inproceedings{ijcai2021-516,
   title     = {GraphMI: Extracting Private Graph Data from Graph Neural Networks},
