@@ -1,6 +1,6 @@
 ## Testing Model Inversion Attacks agaisnt DPAR (Decoupled GNN with Differentially Private Approximate Personalized PageRank)
 
-This repository outlines the testing of model inversion privacy attacks on the DPAR architecture under different settings. This attack tries to reconstruct the training graph based on model weights and a small amount of feature and label information.
+This repository outlines the testing of model inversion privacy attacks on the DPAR architecture under different settings. This attack tries to reconstruct the training graph based on model weights, features and some amount of label information.
 
 The repository has 3 branches and each of them explore different experiments which try to deter the attack such as:
 - Effect of sampling the graph before training
